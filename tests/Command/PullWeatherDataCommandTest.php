@@ -44,7 +44,7 @@ class PullWeatherDataCommandTest extends KernelTestCase {
 
         $commandTester->execute(array(
             'command'  => $command->getName(),
-            'source_url' => 'http://this.does.not.exist.localhost/really/it/does/not',
+            'source_url' => 'http://localhost/this/does/not/exist/really-it-does-not',
         ));
     }
 }
