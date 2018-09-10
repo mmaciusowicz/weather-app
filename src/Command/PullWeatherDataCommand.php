@@ -28,10 +28,30 @@ class PullWeatherDataCommand extends Command
         $source_data = $this->retrieveDataFromSource($source_url);
     }
 
+    /**
+     * Parse source data from string to object.
+     * 
+     * @param string $source_data JSON string containing weather data.
+     * 
+     * @return object Returns an object containing weather data.
+     */
     protected function parseSourceData($source_data) {
+        $parsed_data = json_decode($source_data);
 
+        if ($parsed_data === NULL) {
+            throw new Error('Source data is not valid JSON.');
+        }
+
+        return $parsed_data;
     }
 
+    /**
+     * Retrieve data from source.
+     *
+     * @param string $source_url URL from which data is to be retrieved.
+     *
+     * @return string String containing weather data.
+     */
     protected function retrieveDataFromSource($source_url) {
         if (filter_var($source_url, FILTER_VALIDATE_URL) === FALSE) {
             throw new \Error('Invalid source url');
