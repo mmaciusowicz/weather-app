@@ -18,7 +18,7 @@ class PullWeatherDataCommand extends Command
             ->setDescription('Pulls weather data from a remote source.')
             ->setHelp('Pulls weather data from a remote source and inserts a record ' .
             'into the local weather_record table.')
-            ->addArgument('source', InputArgument::REQUIRED, 'Address of the weather data source, in format http://example.com/foo.');
+            ->addArgument('source_url', InputArgument::REQUIRED, 'Address of the weather data source, in format http://example.com/foo.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
