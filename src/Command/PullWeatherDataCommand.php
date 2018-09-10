@@ -11,8 +11,27 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class PullWeatherDataCommand extends Command
 {
+    /**
+     * Check that weather data has required properties.
+     *
+     * @param stdClass $data Parsed data retrieved from source.
+     */
     protected function checkRequiredProperties($data) {
+        if (!isset($data->date) || !is_string($data->date)) {
+            throw new Error('Incorrect date value in weather data.');
+        }
 
+        if (!isset($data->temperature) || !is_numeric($data->temperature)) {
+            throw new Error('Incorrect temperature value in weather data.');
+        }
+
+        if (!isset($data->chance_of_rain) || !is_numeric($data->chance_of_rain)) {
+            throw new Error('Incorrect chance of rain value in weather data.');
+        }
+
+        if (count(array_diff(array_keys(get_object_vars($data)), ['date', 'temperature', 'chance_of_rain'])) > 0) {
+            throw new Error('Unexpected properties found in weather data.');
+        }
     }
 
     protected function configure()

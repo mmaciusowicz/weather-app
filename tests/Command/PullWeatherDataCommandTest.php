@@ -76,10 +76,63 @@ class PullWeatherDataCommandTest extends KernelTestCase {
     /**
      * @expectedException Error
      */
-    public function testFailingCheckRequiredProperties() {
+    public function testFailingCheckRequiredPropertiesMissingDate() {
         $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
 
         $data = new \stdClass();
+
+        $data->temperature = 3;
+
+        $data->chance_of_rain = 24;
+
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+    }
+
+    /**
+     * @expectedException Error
+     */
+    public function testFailingCheckRequiredPropertiesMissingTemperature() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+
+        $data = new \stdClass();
+
+        $data->date = '2018-02-02';
+
+        $data->chance_of_rain = 24;
+
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+    }
+
+    /**
+     * @expectedException Error
+     */
+    public function testFailingCheckRequiredPropertiesMissingChanceOfRain() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+
+        $data = new \stdClass();
+
+        $data->date = '2018-02-02';
+
+        $data->temperature = 3;
+
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+    }
+
+    /**
+     * @expectedException Error
+     */
+    public function testFailingCheckRequiredPropertiesUnexpectedProperty() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+
+        $data = new \stdClass();
+
+        $data->date = '2018-02-02';
+
+        $data->temperature = 3;
+
+        $data->chance_of_rain = 24;
+
+        $data->unexpected = 'hello';
 
         $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
     }
