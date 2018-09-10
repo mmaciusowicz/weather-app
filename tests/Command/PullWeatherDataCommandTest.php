@@ -11,7 +11,7 @@ class PullWeatherDataCommandTest extends KernelTestCase {
     /**
      * @expectedException Error
      */
-    public function testFailingSourceSyntax() {
+    public function testFailingRetrieveDataFromSourceInvalidUrlSyntax() {
         $kernel = static::createKernel();
 
         $kernel->boot();
@@ -31,7 +31,7 @@ class PullWeatherDataCommandTest extends KernelTestCase {
     /**
      * @expectedException Error
      */
-    public function testFailingSourceNotFound() {
+    public function testFailingRetrieveDataFromSourceNonexistentUrl() {
         $kernel = static::createKernel();
 
         $kernel->boot();
@@ -46,5 +46,38 @@ class PullWeatherDataCommandTest extends KernelTestCase {
             'command'  => $command->getName(),
             'source_url' => 'http://localhost/this/does/not/exist/really-it-does-not',
         ));
+    }
+
+    public function testParseSourceData() {
+        $reflection = new \ReflectionClass('App\Command\PullWeatherDataCommand');
+
+        $parse_source_data = $reflection->getMethod('parseSourceData');
+
+        $parse_source_data->setAccessible(true);
+
+        $parsed_source_data = $parse_source_data->invokeArgs(new PullWeatherDataCommand(), ['{"date": "2016-09-16", "temperature": 19, "chance_for_rain": 84}']);
+
+        $expected = new \stdClass();
+
+        $expected->date = '2016-09-16';
+
+        $expected->temperature = 19;
+
+        $expected->chance_for_rain = 84;
+
+        $this->assertEquals($parsed_source_data, $expected);
+    }
+
+    /**
+     * @expectedException Error
+     */
+    public function testFailingParseSourceData() {
+        $reflection = new \ReflectionClass('App\Command\PullWeatherDataCommand');
+
+        $parse_source_data = $reflection->getMethod('parseSourceData');
+
+        $parse_source_data->setAccessible(true);
+
+        $parse_source_data->invokeArgs(new PullWeatherDataCommand(), ['not a valid json string']);
     }
 }

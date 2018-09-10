@@ -28,6 +28,10 @@ class PullWeatherDataCommand extends Command
         $source_data = $this->retrieveDataFromSource($source_url);
     }
 
+    protected function parseSourceData($source_data) {
+
+    }
+
     protected function retrieveDataFromSource($source_url) {
         if (filter_var($source_url, FILTER_VALIDATE_URL) === FALSE) {
             throw new \Error('Invalid source url');
