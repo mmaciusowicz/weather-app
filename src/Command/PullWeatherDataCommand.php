@@ -11,6 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class PullWeatherDataCommand extends Command
 {
+    protected function checkRequiredProperties($data) {
+
+    }
+
     protected function configure()
     {
         $this
@@ -25,7 +29,7 @@ class PullWeatherDataCommand extends Command
     {
         $source_url = $input->getArgument('source_url');
 
-        $source_data = $this->retrieveDataFromSource($source_url);
+        $data = $this->parseSourceData($this->retrieveDataFromSource($source_url));
     }
 
     /**

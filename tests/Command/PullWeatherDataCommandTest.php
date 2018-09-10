@@ -49,11 +49,7 @@ class PullWeatherDataCommandTest extends KernelTestCase {
     }
 
     public function testParseSourceData() {
-        $reflection = new \ReflectionClass('App\Command\PullWeatherDataCommand');
-
-        $parse_source_data = $reflection->getMethod('parseSourceData');
-
-        $parse_source_data->setAccessible(true);
+        $parse_source_data = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'parseSourceData');
 
         $parsed_source_data = $parse_source_data->invokeArgs(new PullWeatherDataCommand(), ['{"date": "2016-09-16", "temperature": 19, "chance_for_rain": 84}']);
 
@@ -72,12 +68,29 @@ class PullWeatherDataCommandTest extends KernelTestCase {
      * @expectedException Error
      */
     public function testFailingParseSourceData() {
-        $reflection = new \ReflectionClass('App\Command\PullWeatherDataCommand');
-
-        $parse_source_data = $reflection->getMethod('parseSourceData');
-
-        $parse_source_data->setAccessible(true);
+        $parse_source_data = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'parseSourceData');
 
         $parse_source_data->invokeArgs(new PullWeatherDataCommand(), ['not a valid json string']);
+    }
+
+    /**
+     * @expectedException Error
+     */
+    public function testFailingCheckRequiredProperties() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+
+        $data = new \stdClass();
+
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+    }
+
+    private static function getReflectionMethod($class_with_namespace, $method_name) {
+        $reflection = new \ReflectionClass($class_with_namespace);
+
+        $method = $reflection->getMethod($method_name);
+
+        $method->setAccessible(true);
+
+        return $method;
     }
 }
