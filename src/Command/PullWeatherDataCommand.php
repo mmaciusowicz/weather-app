@@ -1,6 +1,7 @@
 <?php
 namespace App\Command;
 
+use App\Service\DataRetriever;
 use App\Service\WeatherRecordManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,16 +15,23 @@ class PullWeatherDataCommand extends Command
 {
 
     /**
+     * @var DataRetriever
+     */
+    private $dataRetriever;
+
+    /**
      * @var WeatherRecordManager
      */
     private $weatherRecordManager;
 
-    public function __construct(WeatherRecordManager $weatherRecordManager) {
+    public function __construct(DataRetriever $dataRetriever, WeatherRecordManager $weatherRecordManager) {
+        $this->dataRetriever = $dataRetriever;
+
         $this->weatherRecordManager = $weatherRecordManager;
 
         parent::__construct();
     }
-    
+
     /**
      * Enforce that properties of the weather data object retrieved from source are correct.
      *
@@ -73,7 +81,7 @@ class PullWeatherDataCommand extends Command
         $source_url = $input->getArgument('source_url');
 
         // Parse source data.
-        $data = $this->parseSourceData($this->retrieveDataFromSource($source_url));
+        $data = $this->parseSourceData($this->dataRetriever->retrieve($source_url));
 
         // Ensure data has correct properties.
         $this->enforceProperties($data);
@@ -87,9 +95,9 @@ class PullWeatherDataCommand extends Command
 
     /**
      * Parse source data from string to object.
-     * 
+     *
      * @param string $source_data JSON string containing weather data.
-     * 
+     *
      * @return object Returns an object containing weather data.
      */
     protected function parseSourceData($source_data) {
@@ -100,44 +108,6 @@ class PullWeatherDataCommand extends Command
         }
 
         return $parsed_data;
-    }
-
-    /**
-     * Retrieve data from source.
-     *
-     * @param string $source_url URL from which data is to be retrieved.
-     *
-     * @return string String containing weather data.
-     */
-    protected function retrieveDataFromSource($source_url) {
-        if (filter_var($source_url, FILTER_VALIDATE_URL) === FALSE) {
-            throw new \Error('Invalid source url');
-        }
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $source_url);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-        // Execute request.
-        $source_data = curl_exec($ch);
-
-        // Check for errors.
-        if ($errno = curl_errno($ch)) {
-            throw new \Error(curl_strerror($errno));
-        }
-
-        // Check response code.
-        $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if ($response_code >= 400) {
-            throw new \Error('Request to source failed with code: ' . $response_code);
-        }
-
-        curl_close($ch);
-
-        return $source_data;
     }
 
 }
