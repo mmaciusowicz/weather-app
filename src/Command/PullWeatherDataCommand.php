@@ -83,6 +83,13 @@ class PullWeatherDataCommand extends Command
         // Parse source data.
         $data = $this->parseSourceData($this->dataRetriever->retrieve($source_url));
 
+        // Intercept temperature not calulated.
+        if (isset($data->temperature) && is_string($data->temperature)) {
+            $output->writeln('Temperature for ' . $date_yesterday . ' not available yet, try later.');
+
+            return;
+        }
+
         // Ensure data has correct properties.
         $this->enforceProperties($data);
 
