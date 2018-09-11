@@ -18,19 +18,19 @@ class PullWeatherDataCommand extends Command
      */
     protected function checkRequiredProperties($data) {
         if (!isset($data->date) || !is_string($data->date)) {
-            throw new Error('Incorrect date value in weather data.');
+            throw new \Error('Incorrect date value in weather data.');
         }
 
         if (!isset($data->temperature) || !is_numeric($data->temperature)) {
-            throw new Error('Incorrect temperature value in weather data.');
+            throw new \Error('Incorrect temperature value in weather data.');
         }
 
-        if (!isset($data->chance_of_rain) || !is_numeric($data->chance_of_rain)) {
-            throw new Error('Incorrect chance of rain value in weather data.');
+        if (!isset($data->chance_for_rain) || !is_numeric($data->chance_for_rain)) {
+            throw new \Error('Incorrect chance for rain value in weather data.');
         }
 
-        if (count(array_diff(array_keys(get_object_vars($data)), ['date', 'temperature', 'chance_of_rain'])) > 0) {
-            throw new Error('Unexpected properties found in weather data.');
+        if (count(array_diff(array_keys(get_object_vars($data)), ['date', 'temperature', 'chance_for_rain'])) > 0) {
+            throw new \Error('Unexpected properties found in weather data.');
         }
     }
 
@@ -62,7 +62,7 @@ class PullWeatherDataCommand extends Command
         $parsed_data = json_decode($source_data);
 
         if ($parsed_data === NULL) {
-            throw new Error('Source data is not valid JSON.');
+            throw new \Error('Source data is not valid JSON.');
         }
 
         return $parsed_data;
