@@ -2,17 +2,27 @@
 namespace App\Controller;
 
 use App\Entity\WeatherRecord;
+use App\Service\WeatherRecordManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class WeatherRecordsListController extends AbstractController {
+
+    /**
+     * @var WeatherRecordManager
+     */
+    private $weatherRecordManager;
+
+    public function __construct(WeatherRecordManager $weatherRecordManager) {
+        $this->weatherRecordManager = $weatherRecordManager;
+    }
 
     /**
      * @Route("/", methods={"GET","HEAD"}))
@@ -23,12 +33,7 @@ class WeatherRecordsListController extends AbstractController {
         // TODO: Make max results configurable in yaml.
         $max_results = 7;
 
-        $records = $entity_manager->createQueryBuilder('weather_record')
-            ->select('weather_record.id', 'weather_record.date', 'weather_record.temperature', 'weather_record.chance_for_rain')
-            ->from('\App\Entity\WeatherRecord', 'weather_record')
-            ->setMaxResults($max_results)
-            ->getQuery()
-            ->execute();
+        $records = $this->weatherRecordManager->list(0, $max_results);
 
         $items = [];
 
