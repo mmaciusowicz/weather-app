@@ -11,7 +11,12 @@ li {
         background-color: #f0f0f0;
     }
 
+    input {
+        margin-bottom: 8px;
+    }
+
     label {
+        display: inline-block;
         width: 120px;
     }
 }
