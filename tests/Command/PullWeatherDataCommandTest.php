@@ -2,12 +2,19 @@
 namespace App\Tests\Command;
 
 use App\Command\PullWeatherDataCommand;
+use App\Service\WeatherRecordManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\Error;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class PullWeatherDataCommandTest extends KernelTestCase {
+
+    /**
+     * @var WeatherRecordManager
+     */
+    private $weatherRecordManager;
+
     /**
      * @expectedException Error
      */
@@ -51,7 +58,7 @@ class PullWeatherDataCommandTest extends KernelTestCase {
     public function testParseSourceData() {
         $parse_source_data = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'parseSourceData');
 
-        $parsed_source_data = $parse_source_data->invokeArgs(new PullWeatherDataCommand(), ['{"date": "2016-09-16", "temperature": 19, "chance_for_rain": 84}']);
+        $parsed_source_data = $parse_source_data->invokeArgs(new PullWeatherDataCommand($this->weatherRecordManager), ['{"date": "2016-09-16", "temperature": 19, "chance_for_rain": 84}']);
 
         $expected = new \stdClass();
 
@@ -70,11 +77,11 @@ class PullWeatherDataCommandTest extends KernelTestCase {
     public function testFailingParseSourceData() {
         $parse_source_data = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'parseSourceData');
 
-        $parse_source_data->invokeArgs(new PullWeatherDataCommand(), ['not a valid json string']);
+        $parse_source_data->invokeArgs(new PullWeatherDataCommand($this->weatherRecordManager), ['not a valid json string']);
     }
 
-    public function testCheckRequiredProperties() {
-        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+    public function testEnforceProperties() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'enforceProperties');
 
         $data = new \stdClass();
 
@@ -84,7 +91,7 @@ class PullWeatherDataCommandTest extends KernelTestCase {
 
         $data->chance_for_rain = 24;
 
-        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand($this->weatherRecordManager), [$data]);
 
         // If no exception is thrown, assert true.
         $this->assertTrue(true);
@@ -93,8 +100,8 @@ class PullWeatherDataCommandTest extends KernelTestCase {
     /**
      * @expectedException Error
      */
-    public function testFailingCheckRequiredPropertiesMissingDate() {
-        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+    public function testFailingEnforcePropertiesMissingDate() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'enforceProperties');
 
         $data = new \stdClass();
 
@@ -102,14 +109,14 @@ class PullWeatherDataCommandTest extends KernelTestCase {
 
         $data->chance_of_rain = 24;
 
-        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand($this->weatherRecordManager), [$data]);
     }
 
     /**
      * @expectedException Error
      */
-    public function testFailingCheckRequiredPropertiesMissingTemperature() {
-        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+    public function testFailingEnforcePropertiesMissingTemperature() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'enforceProperties');
 
         $data = new \stdClass();
 
@@ -117,14 +124,14 @@ class PullWeatherDataCommandTest extends KernelTestCase {
 
         $data->chance_of_rain = 24;
 
-        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand($this->weatherRecordManager), [$data]);
     }
 
     /**
      * @expectedException Error
      */
-    public function testFailingCheckRequiredPropertiesMissingChanceOfRain() {
-        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+    public function testFailingEnforcePropertiesMissingChanceOfRain() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'enforceProperties');
 
         $data = new \stdClass();
 
@@ -132,16 +139,16 @@ class PullWeatherDataCommandTest extends KernelTestCase {
 
         $data->temperature = 3;
 
-        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand($this->weatherRecordManager), [$data]);
     }
 
     /**
      * @expectedException Error
      */
-    public function testFailingCheckRequiredPropertiesUnexpectedProperty() {
-        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+    public function testFailingEnforcePropertiesUnexpectedProperty() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'enforceProperties');
 
-        $data = new \stdClass();
+        $data = new object();
 
         $data->date = '2018-02-02';
 
@@ -151,7 +158,7 @@ class PullWeatherDataCommandTest extends KernelTestCase {
 
         $data->unexpected = 'hello';
 
-        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand($this->weatherRecordManager), [$data]);
     }
 
     private static function getReflectionMethod($class_with_namespace, $method_name) {
@@ -163,4 +170,30 @@ class PullWeatherDataCommandTest extends KernelTestCase {
 
         return $method;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function setUp()
+    {
+        $kernel = self::bootKernel();
+
+        $container = $kernel->getContainer();
+
+        // Define weatherRecordManager.
+        $this->weatherRecordManager = new WeatherRecordManager($container
+            ->get('doctrine')
+            ->getManager());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        $this->weatherRecordManager = null;
+    }
+
 }

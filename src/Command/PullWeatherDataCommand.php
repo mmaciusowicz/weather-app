@@ -1,6 +1,7 @@
 <?php
 namespace App\Command;
 
+use App\Service\WeatherRecordManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,12 +12,24 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class PullWeatherDataCommand extends Command
 {
+
     /**
-     * Check that weather data has required properties.
-     *
-     * @param stdClass $data Parsed data retrieved from source.
+     * @var WeatherRecordManager
      */
-    protected function checkRequiredProperties($data) {
+    private $weatherRecordManager;
+
+    public function __construct(WeatherRecordManager $weatherRecordManager) {
+        $this->weatherRecordManager = $weatherRecordManager;
+
+        parent::__construct();
+    }
+    
+    /**
+     * Enforce that properties of the weather data object retrieved from source are correct.
+     *
+     * @param object $data Parsed data retrieved from source.
+     */
+    protected function enforceProperties($data) {
         if (!isset($data->date) || !is_string($data->date)) {
             throw new \Error('Incorrect date value in weather data.');
         }
@@ -46,9 +59,30 @@ class PullWeatherDataCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // TODO: Optionally add ability to change time zones.
+        $date_yesterday = (new \DateTime('now -1 day'))->format("Y-m-d");
+
+        // Check if record exists. If so, skip the rest of the operation.
+        if ($this->weatherRecordManager->checkIfRecordExistsForDate($date_yesterday)) {
+            $output->writeln('Record for date ' . $date_yesterday . ' already exists, check later.');
+
+            return;
+        }
+
+        // Get data from source.
         $source_url = $input->getArgument('source_url');
 
+        // Parse source data.
         $data = $this->parseSourceData($this->retrieveDataFromSource($source_url));
+
+        // Ensure data has correct properties.
+        $this->enforceProperties($data);
+
+        // Add a record to the database.
+        $weather_record = $this->weatherRecordManager->create($data->date, $data->temperature, $data->chance_for_rain);
+
+        // Write to output.
+        $output->writeln('Created a record for date ' . $weather_record->getDate()->format('Y-m-d') . '.');
     }
 
     /**
@@ -105,4 +139,5 @@ class PullWeatherDataCommand extends Command
 
         return $source_data;
     }
+
 }
