@@ -5,6 +5,7 @@ use App\Entity\WeatherRecord;
 use Doctrine\ORM\EntityManagerInterface;
 
 class WeatherRecordManager {
+
     /**
      * @var \Doctrine\ORM\EntityManager
      */
@@ -63,4 +64,5 @@ class WeatherRecordManager {
 
         return $weather_record;
     }
+
 }

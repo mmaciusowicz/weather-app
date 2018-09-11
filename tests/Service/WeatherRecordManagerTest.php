@@ -6,6 +6,7 @@ use App\Service\WeatherRecordManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class WeatherRecordManagerTest extends KernelTestCase {
+
     /**
      * @var \Doctrine\ORM\EntityManager
      */
@@ -100,4 +101,5 @@ class WeatherRecordManagerTest extends KernelTestCase {
 
         $this->weatherRecordManager = null;
     }
+
 }

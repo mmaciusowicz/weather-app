@@ -32,4 +32,5 @@ class DataRetrieverTest extends KernelTestCase {
     protected function tearDown() {
         $this->dataRetriever = null;
     }
+
 }
