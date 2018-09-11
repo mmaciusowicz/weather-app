@@ -73,6 +73,23 @@ class PullWeatherDataCommandTest extends KernelTestCase {
         $parse_source_data->invokeArgs(new PullWeatherDataCommand(), ['not a valid json string']);
     }
 
+    public function testCheckRequiredProperties() {
+        $check_required_properties = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'checkRequiredProperties');
+
+        $data = new \stdClass();
+
+        $data->date = '2018-02-03';
+
+        $data->temperature = 3;
+
+        $data->chance_for_rain = 24;
+
+        $check_required_properties->invokeArgs(new PullWeatherDataCommand(), [$data]);
+
+        // If no exception is thrown, assert true.
+        $this->assertTrue(true);
+    }
+
     /**
      * @expectedException Error
      */
