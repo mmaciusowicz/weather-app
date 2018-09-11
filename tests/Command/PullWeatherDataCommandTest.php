@@ -52,6 +52,35 @@ class PullWeatherDataCommandTest extends KernelTestCase {
         $this->assertContains('Record for date ' . $date_yesterday . ' already exists, check later.', $command_tester->getDisplay());
     }
 
+    public function testExecuteWithTemperatureCalculating() {
+        $date_yesterday = (new \DateTime('now -1 day'))->format("Y-m-d");
+
+        $mock_data_retriever = $this->createMock(DataRetriever::class);
+
+        $mock_data_retriever->expects($this->any())
+            ->method('retrieve')
+            ->willReturn('{"date": "' . $date_yesterday . '", "temperature": "calculating", "chance_for_rain": 84}');
+
+        $kernel = static::createKernel();
+
+        $kernel->boot();
+
+        $application = new Application($kernel);
+
+        $application->add(new PullWeatherDataCommand($mock_data_retriever, $this->weatherRecordManager));
+
+        $command = $application->find('app:pull-weather-data');
+
+        $command_tester = new CommandTester($command);
+
+        $command_tester->execute(array(
+            'command'  => $command->getName(),
+            'source_url' => 'http://localhost/mock-source',
+        ));
+
+        $this->assertContains('Temperature for ' . $date_yesterday . ' not available yet, try later.', $command_tester->getDisplay());
+    }
+
     public function testParseSourceData() {
         $parse_source_data = self::getReflectionMethod('App\Command\PullWeatherDataCommand', 'parseSourceData');
 
