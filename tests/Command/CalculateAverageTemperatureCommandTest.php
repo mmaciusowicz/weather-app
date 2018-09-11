@@ -55,24 +55,46 @@ class CalculateAverageTemperatureCommandTest extends KernelTestCase {
 
         $command_tester->execute(array(
             'command'  => $command->getName(),
-            'number_of_days' => 3,
+            'number_of_days' => '3',
         ));
 
         $this->assertContains("12", $command_tester->getDisplay());
 
         $command_tester->execute(array(
             'command'  => $command->getName(),
-            'number_of_days' => 2,
+            'number_of_days' => '2',
         ));
 
         $this->assertContains("10", $command_tester->getDisplay());
 
         $command_tester->execute(array(
             'command'  => $command->getName(),
-            'number_of_days' => 1,
+            'number_of_days' => '1',
         ));
 
         $this->assertContains("-2", $command_tester->getDisplay());
+    }
+
+    /**
+     * @expectedException Error
+     */
+    public function testFailingExecuteWithNonIntNumberOfDays() {
+        $kernel = static::createKernel();
+
+        $kernel->boot();
+
+        $application = new Application($kernel);
+
+        $application->add(new CalculateAverageTemperatureCommand($this->weatherRecordManager));
+
+        $command = $application->find('app:calculate-average-temperature');
+
+        $command_tester = new CommandTester($command);
+
+        $command_tester->execute(array(
+            'command'  => $command->getName(),
+            'number_of_days' => '1.1',
+        ));
     }
 
     /**
