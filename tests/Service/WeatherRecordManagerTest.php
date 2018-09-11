@@ -5,11 +5,16 @@ use App\Entity\WeatherRecord;
 use App\Service\WeatherRecordManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class CalculatorTest extends KernelTestCase {
+class WeatherRecordManagerTest extends KernelTestCase {
     /**
      * @var \Doctrine\ORM\EntityManager
      */
     private $entityManager;
+
+    /**
+     * @var WeatherRecordManager
+     */
+    private $weatherRecordManager;
 
     public function testCheckIfRecordExistsForDateExpectTrue() {
         $date = \DateTime::createFromFormat('Y-m-d', '2018-03-05');
@@ -30,17 +35,13 @@ class CalculatorTest extends KernelTestCase {
 
         $this->entityManager->flush();
 
-        $weather_record_manager = new WeatherRecordManager();
-
-        $this->assertTrue($weather_record_manager->checkIfRecordExistsForDate($date));
+        $this->assertTrue($this->weatherRecordManager->checkIfRecordExistsForDate($date));
     }
 
     public function testCheckIfRecordExistsForDateExpectFalse() {
         $date = \DateTime::createFromFormat ('Y-m-d', '2018-03-05');
 
-        $weather_record_manager = new WeatherRecordManager();
-
-        $this->assertFalse($weather_record_manager->checkIfRecordExistsForDate($date));
+        $this->assertFalse($this->weatherRecordManager->checkIfRecordExistsForDate($date));
     }
 
     public function testCreate() {
@@ -50,9 +51,7 @@ class CalculatorTest extends KernelTestCase {
 
         $chance_for_rain = 40;
 
-        $weather_record_manager = new WeatherRecordManager();
-
-        $created_record = $weather_record_manager->create($date, $temperature, $chance_for_rain);
+        $created_record = $this->weatherRecordManager->create($date, $temperature, $chance_for_rain);
 
         $this->assertTrue(is_object($created_record));
 
@@ -70,7 +69,10 @@ class CalculatorTest extends KernelTestCase {
     {
         $kernel = self::bootKernel();
 
-        $this->entityManager = $kernel->getContainer()
+        $container = $kernel->getContainer();
+
+        // Define entityManager.
+        $this->entityManager = $container
             ->get('doctrine')
             ->getManager();
 
@@ -78,6 +80,9 @@ class CalculatorTest extends KernelTestCase {
         $this->entityManager
             ->createQuery('DELETE FROM \App\Entity\WeatherRecord')
             ->execute();
+
+        // Define weatherRecordManager.
+        $this->weatherRecordManager = new WeatherRecordManager($this->entityManager);
     }
 
     /**

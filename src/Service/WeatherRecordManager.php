@@ -2,8 +2,18 @@
 namespace App\Service;
 
 use App\Entity\WeatherRecord;
+use Doctrine\ORM\EntityManagerInterface;
 
 class WeatherRecordManager {
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager) {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * Create a new weather record in the database.
      *
