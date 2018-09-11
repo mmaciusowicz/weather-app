@@ -97,5 +97,7 @@ class WeatherRecordManagerTest extends KernelTestCase {
         $this->entityManager->close();
 
         $this->entityManager = null;
+
+        $this->weatherRecordManager = null;
     }
 }
