@@ -36,9 +36,9 @@ class CalculatorTest extends KernelTestCase {
     }
 
     public function testCheckIfRecordExistsForDateExpectFalse() {
-        $weather_record_manager = new WeatherRecordManager();
-
         $date = \DateTime::createFromFormat ('Y-m-d', '2018-03-05');
+
+        $weather_record_manager = new WeatherRecordManager();
 
         $this->assertFalse($weather_record_manager->checkIfRecordExistsForDate($date));
     }
@@ -73,6 +73,11 @@ class CalculatorTest extends KernelTestCase {
         $this->entityManager = $kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+
+        // Ensure no records are in database before testing.
+        $this->entityManager
+            ->createQuery('DELETE FROM \App\Entity\WeatherRecord')
+            ->execute();
     }
 
     /**
