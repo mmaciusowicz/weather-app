@@ -1,0 +1,66 @@
+<?php
+namespace App\Service;
+
+use App\Entity\WeatherRecord;
+use Doctrine\ORM\EntityManagerInterface;
+
+class WeatherRecordManager {
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager) {
+        $this->entityManager = $entityManager;
+    }
+
+    /**
+     * Create a new weather record in the database.
+     *
+     * @param string $date Date of the record in format Y-m-d.
+     *
+     * @return boolean True if record exists, false if it doesn't.
+     */
+    public function checkIfRecordExistsForDate(string $date) {
+        $result = $this->entityManager->createQueryBuilder('weather_record')
+            ->select('count(weather_record.id)')
+            ->from('\App\Entity\WeatherRecord', 'weather_record')
+            ->where('weather_record.date = :date')
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($result === "1") {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Create a new weather record in the database.
+     *
+     * @param string $date Date of the record in format Y-m-d.
+     * @param int $temperature Temperature.
+     * @param int $chance_for_rain Chance of rain (0-100).
+     *
+     * @return WeatherRecord Created weather record.
+     */
+    public function create(string $date, $temperature, $chance_for_rain) {
+        $date_time = \DateTime::createFromFormat('Y-m-d', $date);
+
+        $weather_record = new WeatherRecord();
+
+        $weather_record->setDate($date_time);
+
+        $weather_record->setTemperature($temperature);
+
+        $weather_record->setChanceForRain($chance_for_rain);
+
+        $this->entityManager->persist($weather_record);
+
+        $this->entityManager->flush();
+
+        return $weather_record;
+    }
+}
