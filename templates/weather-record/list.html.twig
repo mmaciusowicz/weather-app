@@ -1,10 +1,24 @@
-<ul>
-    {% for item in items %}
-        <li>
-            <h3>{{ item.date }}</h3>
-            {{ form_start(item.form) }}
-            {{ form_widget(item.form) }}
-            {{ form_end(item.form) }}
-        </li>
-    {% endfor %}
-</ul>
+{% extends 'base.html.twig' %}
+
+{% block title %}Weather records{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('build/weather_record_list.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('build/weather_record_list.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    <ul>
+        {% for item in items %}
+            <li>
+                <h3>{{ item.date }}</h3>
+                {{ form_start(item.form) }}
+                {{ form_widget(item.form) }}
+                {{ form_end(item.form) }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
