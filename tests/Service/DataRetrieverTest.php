@@ -15,7 +15,7 @@ class DataRetrieverTest extends KernelTestCase {
      * @expectedException Error
      */
     public function testFailingRetrieveInvalidUrlSyntax() {
-        $this->dataRetriever->retrieve('example.com');
+        $this->dataRetriever->retrieve('localhost.localdomain');
     }
 
     /**
