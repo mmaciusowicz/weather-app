@@ -17,7 +17,9 @@ class WeatherRecordManagerTest extends KernelTestCase {
     private $weatherRecordManager;
 
     public function testCheckIfRecordExistsForDateExpectTrue() {
-        $date = \DateTime::createFromFormat('Y-m-d', '2018-03-05');
+        $date = '2018-03-05';
+
+        $date_time = \DateTime::createFromFormat('Y-m-d', $date);
 
         $temperature = 15;
 
@@ -25,7 +27,7 @@ class WeatherRecordManagerTest extends KernelTestCase {
 
         $weather_record = new WeatherRecord();
 
-        $weather_record->setDate($date);
+        $weather_record->setDate($date_time);
 
         $weather_record->setTemperature($temperature);
 
@@ -39,13 +41,13 @@ class WeatherRecordManagerTest extends KernelTestCase {
     }
 
     public function testCheckIfRecordExistsForDateExpectFalse() {
-        $date = \DateTime::createFromFormat ('Y-m-d', '2018-03-05');
-
-        $this->assertFalse($this->weatherRecordManager->checkIfRecordExistsForDate($date));
+        $this->assertFalse($this->weatherRecordManager->checkIfRecordExistsForDate('2018-03-05'));
     }
 
     public function testCreate() {
-        $date = \DateTime::createFromFormat('Y-m-d', '2018-03-05');
+        $date = '2018-03-05';
+
+        $date_time = \DateTime::createFromFormat ('Y-m-d', $date);
 
         $temperature = 15;
 
@@ -55,11 +57,11 @@ class WeatherRecordManagerTest extends KernelTestCase {
 
         $this->assertTrue(is_object($created_record));
 
-        $this->assertEquals($created_record->date, $date);
+        $this->assertEquals($created_record->getDate(), $date_time);
 
-        $this->assertEquals($created_record->temperature, $temperature);
+        $this->assertEquals($created_record->getTemperature(), $temperature);
 
-        $this->assertEquals($created_record->temperature, $chance_for_rain);
+        $this->assertEquals($created_record->getChanceForRain(), $chance_for_rain);
     }
 
     /**
