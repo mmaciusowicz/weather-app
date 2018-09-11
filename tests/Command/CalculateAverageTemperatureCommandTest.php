@@ -39,6 +39,8 @@ class CalculateAverageTemperatureCommandTest extends KernelTestCase {
         $weather_record_3->setChanceForRain(9);
 
         $this->entityManager->persist($weather_record_3);
+
+        $this->entityManager->flush();
         
         // Test the command.
         $kernel = static::createKernel();
@@ -58,14 +60,14 @@ class CalculateAverageTemperatureCommandTest extends KernelTestCase {
             'number_of_days' => '3',
         ));
 
-        $this->assertContains("12", $command_tester->getDisplay());
+        $this->assertContains("8.3", $command_tester->getDisplay());
 
         $command_tester->execute(array(
             'command'  => $command->getName(),
             'number_of_days' => '2',
         ));
 
-        $this->assertContains("10", $command_tester->getDisplay());
+        $this->assertContains("5", $command_tester->getDisplay());
 
         $command_tester->execute(array(
             'command'  => $command->getName(),
@@ -117,9 +119,7 @@ class CalculateAverageTemperatureCommandTest extends KernelTestCase {
             ->execute();
 
         // Define weatherRecordManager.
-        $this->weatherRecordManager = new WeatherRecordManager($container
-            ->get('doctrine')
-            ->getManager());
+        $this->weatherRecordManager = new WeatherRecordManager($this->entityManager);
     }
 
     /**

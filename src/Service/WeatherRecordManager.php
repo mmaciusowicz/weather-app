@@ -16,6 +16,34 @@ class WeatherRecordManager {
     }
 
     /**
+     * Calculate an average temperature for specified number of days.
+     *
+     * @param int $number_of_days Number of days to calculate the average for.
+     */
+    public function calculateAverageTemperature($number_of_days) {
+        $connection = $this->entityManager->getConnection();
+
+        $query = 'SELECT AVG(temperatures)
+            FROM (
+                SELECT temperature
+                AS temperatures 
+                FROM weather_record
+                ORDER BY date DESC
+                LIMIT 0, :limit
+            ) AS avg';
+
+        $statement = $connection->prepare($query);
+
+        $statement->bindValue('limit', $number_of_days, \PDO::PARAM_INT);
+    
+        $statement->execute();
+
+        $result = $statement->fetch();
+
+        return $result;
+    }
+
+    /**
      * Create a new weather record in the database.
      *
      * @param string $date Date of the record in format Y-m-d.

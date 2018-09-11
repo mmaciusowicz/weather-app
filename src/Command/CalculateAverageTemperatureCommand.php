@@ -36,7 +36,14 @@ class CalculateAverageTemperatureCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $number_of_days = $input->getArgument('number_of_days');
 
+        if (!is_numeric($number_of_days)
+            || strval(intval($number_of_days)) !== $number_of_days) {
+            throw new \Error("Number of days must be an integer");
+        }
+
+        $output->write($this->weatherRecordManager->calculateAverageTemperature(intval($number_of_days)));
     }
 
 }
