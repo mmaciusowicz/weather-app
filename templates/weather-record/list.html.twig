@@ -1,0 +1,10 @@
+<ul>
+    {% for item in items %}
+        <li>
+            <h3>{{ item.date }}</h3>
+            {{ form_start(item.form) }}
+            {{ form_widget(item.form) }}
+            {{ form_end(item.form) }}
+        </li>
+    {% endfor %}
+</ul>
