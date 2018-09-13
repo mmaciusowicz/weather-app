@@ -15,9 +15,8 @@
         {% for item in items %}
             <li>
                 <h3>{{ item.date }}</h3>
-                {{ form_start(item.form) }}
-                {{ form_widget(item.form) }}
-                {{ form_end(item.form) }}
+                <p>Temperature: {{ item.temperature }}</p>
+                <p>Chance for rain: {{ item.chance_for_rain }}</p>
             </li>
         {% endfor %}
     </ul>
