@@ -97,18 +97,26 @@ class WeatherRecordManager {
      * List weather records.
      *
      * @param int $offset Number of records to skip.
-     * @param int $limit Number of records to return.
+     * @param int $limit (optional) Number of records to return.
      *
      * @return array List of weather records.
      */
-    public function list($offset, $limit) {
-        $records = $this->entityManager->createQueryBuilder('weather_record')
-            ->select('weather_record.id', 'weather_record.date', 'weather_record.temperature', 'weather_record.chance_for_rain')
-            ->from('\App\Entity\WeatherRecord', 'weather_record')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->orderBy('weather_record.date', 'DESC')
-            ->getQuery()
+    public function list($offset, $limit = NULL) {
+        $qb = $this->entityManager->createQueryBuilder('weather_record');
+
+        $qb->select('weather_record.id', 'weather_record.date', 'weather_record.temperature', 'weather_record.chance_for_rain');
+
+        $qb->from('\App\Entity\WeatherRecord', 'weather_record');
+
+        $qb->setFirstResult($offset);
+
+        if ($limit !== NULL) {
+            $qb->setMaxResults($limit);
+        }
+
+        $qb->orderBy('weather_record.date', 'DESC');
+
+        $records = $qb->getQuery()
             ->execute();
 
         return $records;

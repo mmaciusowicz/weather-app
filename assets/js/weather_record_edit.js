@@ -1,0 +1,1 @@
+import "../css/weather_record_edit.scss";

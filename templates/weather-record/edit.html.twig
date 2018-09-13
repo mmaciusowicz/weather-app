@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Weather records{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('build/weather_record_edit.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('build/weather_record_edit.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+{% endblock %}
